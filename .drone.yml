@@ -1,0 +1,23 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: build
+  image: plugins/ecr
+  settings:
+    access_key:
+      from_secret: aws_access_key_id
+    secret_key:
+      from_secret: aws_secret_access_key
+    repo: 223395065297.dkr.ecr.eu-west-1.amazonaws.com/robkaandorp/drone-portainer
+    registry: 223395065297.dkr.ecr.eu-west-1.amazonaws.com
+    region: eu-west-1
+    tags:
+      - latest
+      - ${DRONE_COMMIT_BRANCH}-${DRONE_BUILD_NUMBER}
+
+trigger:
+  branch:
+  - master

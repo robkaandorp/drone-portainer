@@ -1,0 +1,25 @@
+{
+  "name": "drone-portainer",
+  "version": "1.0.0",
+  "description": "Drone portainer plugin to update a portainer stack with a docker compose file",
+  "main": "dist/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robkaandorp/drone-portainer.git"
+  },
+  "author": "Rob Kaandorp",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robkaandorp/drone-portainer/issues"
+  },
+  "homepage": "https://github.com/robkaandorp/drone-portainer#readme",
+  "dependencies": {
+    "axios": "^0.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.8"
+  }
+}
