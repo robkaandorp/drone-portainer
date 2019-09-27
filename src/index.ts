@@ -9,6 +9,13 @@ const image             = process.env.IMAGE;
 const imageTag          = process.env.IMAGE_TAG;
 const stackName         = process.env.STACK_NAME;
 const entrypoint        = process.env.ENTRYPOINT;
+const composeEnvStr     = process.env.COMPOSE_ENVIRONMENT;
+
+let additionalComposeEnv: { [key: string]: string } = {};
+
+if (composeEnvStr && composeEnvStr !== '') {
+    additionalComposeEnv = JSON.parse(composeEnvStr);
+}
 
 const imageName = `${registry}/${image}`;
 
@@ -119,6 +126,15 @@ const axios = Axios.create({
     // Read docker-compose.yml
     const composeFile = fs.readFileSync("docker-compose.yml");
 
+    let composeEnvArray = [
+        { "name": "imageName", "value": `${imageName}:${imageTag}` },
+        { "name": "stackName", "value": stackName }
+    ];
+
+    if (additionalComposeEnv) {
+        Object.keys(additionalComposeEnv).forEach(k => composeEnvArray.push({ "name": k, "value": additionalComposeEnv[k] }));
+    }
+
     if (!stackToUpdate) {
         console.log(`Creating stack ${stackName}`);
 
@@ -127,10 +143,7 @@ const axios = Axios.create({
             Name: stackName,
             SwarmID: swarmResponse.data.ID,
             StackFileContent: composeFile.toString(),
-            Env: [
-                { "name": "imageName", "value": `${imageName}:${imageTag}` },
-                { "name": "stackName", "value": stackName }
-            ],
+            Env: composeEnvArray,
             Prune: true
         });
 
@@ -148,10 +161,7 @@ const axios = Axios.create({
             {
                 id: stackToUpdate.Id,
                 StackFileContent: composeFile.toString(),
-                Env: [
-                    { "name": "imageName", "value": `${imageName}:${imageTag}` },
-                    { "name": "stackName", "value": stackName }
-                ],
+                Env: composeEnvArray,
                 Prune: true
             });
 
