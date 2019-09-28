@@ -1,15 +1,15 @@
 import fs from 'fs';
 import Axios from 'axios';
 
-const portainerUrl      = process.env.PORTAINER_URL;
-const portainerUsername = process.env.PORTAINER_USERNAME;
-const portainerPassword = process.env.PORTAINER_PASSWORD;
-const registry          = process.env.REGISTRY;
-const image             = process.env.IMAGE;
-const imageTag          = process.env.IMAGE_TAG;
-const stackName         = process.env.STACK_NAME;
-const entrypoint        = process.env.ENTRYPOINT;
-const composeEnvStr     = process.env.COMPOSE_ENVIRONMENT;
+const portainerUrl      = process.env.PLUGIN_PORTAINER_URL;
+const portainerUsername = process.env.PLUGIN_PORTAINER_USERNAME;
+const portainerPassword = process.env.PLUGIN_PORTAINER_PASSWORD;
+const registry          = process.env.PLUGIN_REGISTRY;
+const image             = process.env.PLUGIN_IMAGE;
+const imageTag          = process.env.PLUGIN_IMAGE_TAG;
+const stackName         = process.env.PLUGIN_STACK_NAME;
+const endpoint          = process.env.PLUGIN_ENDPOINT;
+const composeEnvStr     = process.env.PLUGIN_COMPOSE_ENVIRONMENT;
 
 let additionalComposeEnv: { [key: string]: string } = {};
 
@@ -50,10 +50,10 @@ const axios = Axios.create({
 
 
     // Find the local endpoint id
-    const localEp = endpointsReponse.data.find((ep: { Id: number, Name: string }) => ep.Name === entrypoint);
+    const localEp = endpointsReponse.data.find((ep: { Id: number, Name: string }) => ep.Name === endpoint);
 
     if (!localEp){
-        console.error(`Endpoint ${entrypoint} not found`);
+        console.error(`Endpoint ${endpoint} not found`);
         process.exit(1);
     }
 
