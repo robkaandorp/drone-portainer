@@ -5,15 +5,13 @@ name: default
 
 steps:
 - name: build
-  image: plugins/ecr
+  image: plugins/docker
   settings:
-    access_key:
-      from_secret: aws_access_key_id
-    secret_key:
-      from_secret: aws_secret_access_key
-    repo: 223395065297.dkr.ecr.eu-west-1.amazonaws.com/robkaandorp/drone-portainer
-    registry: 223395065297.dkr.ecr.eu-west-1.amazonaws.com
-    region: eu-west-1
+    username:
+      from_secret: docker_hub_user
+    password:
+      from_secret: docker_hub_access_token
+    repo: robkaandorp/drone-portainer
     tags:
       - latest
       - ${DRONE_COMMIT_BRANCH}-${DRONE_BUILD_NUMBER}
