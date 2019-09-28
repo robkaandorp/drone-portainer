@@ -10,6 +10,7 @@ const imageTag          = process.env.PLUGIN_IMAGE_TAG;
 const stackName         = process.env.PLUGIN_STACK_NAME;
 const endpoint          = process.env.PLUGIN_ENDPOINT;
 const composeEnvStr     = process.env.PLUGIN_COMPOSE_ENVIRONMENT;
+const dockerComposeFile = "docker-compose.yml";
 
 let additionalComposeEnv: { [key: string]: string } = {};
 
@@ -124,7 +125,7 @@ const axios = Axios.create({
     const stackToUpdate = stacksResponse.data.find((stack: { Id: Number, Name: string }) => stack.Name === stackName);
 
     // Read docker-compose.yml
-    const composeFile = fs.readFileSync("/drone/src/docker-compose.yml");
+    const composeFile = fs.readFileSync(dockerComposeFile);
 
     let composeEnvArray = [
         { "name": "imageName", "value": `${imageName}:${imageTag}` },
