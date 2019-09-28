@@ -135,9 +135,6 @@ const axios = Axios.create({
         Object.keys(additionalComposeEnv).forEach(k => composeEnvArray.push({ "name": k, "value": additionalComposeEnv[k] }));
     }
 
-    // TODO: remove this, it exposes secrets in the logs!
-    console.log(`Compose environment: ${JSON.stringify(composeEnvArray)}`);
-
     if (!stackToUpdate) {
         console.log(`Creating stack ${stackName}`);
 
@@ -155,8 +152,6 @@ const axios = Axios.create({
             console.error(stackCreateResponse);
             process.exit(1);
         }
-
-        console.log(stackCreateResponse.data)        
     } else {
         console.log(`Updating stack ${stackToUpdate.Id} - ${stackToUpdate.Name}`);
 
@@ -173,8 +168,6 @@ const axios = Axios.create({
             console.error(stackUpdateResponse);
             process.exit(1);
         }
-
-        console.log(stackUpdateResponse.data)
     }
 
     console.log("-- done --");
