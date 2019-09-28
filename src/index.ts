@@ -50,7 +50,7 @@ const axios = Axios.create({
     }
 
 
-    // Find the local endpoint id
+    // Find the endpoint id
     const localEp = endpointsReponse.data.find((ep: { Id: number, Name: string }) => ep.Name === endpoint);
 
     if (!localEp){
@@ -80,7 +80,7 @@ const axios = Axios.create({
     const xRegistryAuth = { Username: "", Password: "", Serveraddress: registry };
     const xRegistryAuthStr = Buffer.from(JSON.stringify(xRegistryAuth)).toString("base64");
 
-    // Pull the controlpanel image
+    // Pull the image
     const imageResponse = await axios.post(`/endpoints/${localEp.Id}/docker/images/create`, { }, 
         {
             headers: { "X-Registry-Auth": xRegistryAuthStr },
