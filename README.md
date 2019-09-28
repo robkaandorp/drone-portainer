@@ -32,7 +32,21 @@ name: default
 ```
 
 The compose file should be named `docker-compose.yml` and be placed in the root of the workspace.
-The stack wil be created when it does not exist and updated if it does exist.
+The stack wil be created when it does not exist and updated if it does exist. Example of compose file:
+
+``` yaml
+version: "3.5"
+
+services:
+
+  example-service:
+    image: $imageName
+    restart: always
+    ports:
+      - 8080:8080
+```
+
+The `$imageName` and `$stackName` environment is already set and need not be supplied through `compose_environment`.
 
 The plugin will pull the image before applying the compose file. If it needs to be pulled from a private
 registry, the registry and authentication should be configured in portainer. The limitation is you can only 
