@@ -124,7 +124,7 @@ const axios = Axios.create({
     const stackToUpdate = stacksResponse.data.find((stack: { Id: Number, Name: string }) => stack.Name === stackName);
 
     // Read docker-compose.yml
-    const composeFile = fs.readFileSync("docker-compose.yml");
+    const composeFile = fs.readFileSync("/drone/src/docker-compose.yml");
 
     let composeEnvArray = [
         { "name": "imageName", "value": `${imageName}:${imageTag}` },
@@ -134,6 +134,9 @@ const axios = Axios.create({
     if (additionalComposeEnv) {
         Object.keys(additionalComposeEnv).forEach(k => composeEnvArray.push({ "name": k, "value": additionalComposeEnv[k] }));
     }
+
+    // TODO: remove this, it exposes secrets in the logs!
+    console.log(`Compose environment: ${JSON.stringify(composeEnvArray)}`);
 
     if (!stackToUpdate) {
         console.log(`Creating stack ${stackName}`);
