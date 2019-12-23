@@ -10,12 +10,16 @@ const imageTag          = process.env.PLUGIN_IMAGE_TAG;
 const stackName         = process.env.PLUGIN_STACK_NAME;
 const endpoint          = process.env.PLUGIN_ENDPOINT;
 const composeEnvStr     = process.env.PLUGIN_COMPOSE_ENVIRONMENT;
-const dockerComposeFile = "docker-compose.yml";
+let   dockerComposeFile = process.env.PLUGIN_COMPOSE_FILE;
 
 let additionalComposeEnv: { [key: string]: string } = {};
 
 if (composeEnvStr && composeEnvStr !== '') {
     additionalComposeEnv = JSON.parse(composeEnvStr);
+}
+
+if (!dockerComposeFile || dockerComposeFile === '') {
+    dockerComposeFile = "docker-compose.yml";
 }
 
 const imageName = `${registry}/${image}`;
