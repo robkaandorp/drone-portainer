@@ -72,4 +72,4 @@ When setting the `compose_environment` from a secret, use json notation in the s
 }
 ```
 
-If you are using portainer without swarm, set the standalone option to `true`.
+If you are using portainer without swarm, set the standalone option to `true`. By default, drone is using the swarm version.
