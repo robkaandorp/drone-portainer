@@ -27,6 +27,7 @@ name: default
     image: example/example-image
     image_tag: ${DRONE_COMMIT_BRANCH}-${DRONE_BUILD_NUMBER}
     stack_name: example-stack
+    standalone: false
     compose_environment:
       from_secret: compose_environment
 ```
@@ -70,3 +71,5 @@ When setting the `compose_environment` from a secret, use json notation in the s
     "key2": "value2"
 }
 ```
+
+If you are using portainer without swarm, set the standalone option to `true`.
