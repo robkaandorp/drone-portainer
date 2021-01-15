@@ -7,10 +7,11 @@ const portainerPassword = process.env.PLUGIN_PORTAINER_PASSWORD;
 const registry          = process.env.PLUGIN_REGISTRY;
 const image             = process.env.PLUGIN_IMAGE;
 const imageTag          = process.env.PLUGIN_IMAGE_TAG;
-const stackName         = process.env.PLUGIN_STACK_NAME;
+const stackName         = process.env.PLUGIN_STACK_NAME.replace(/[^a-z0-9]/gmi, "").replace(/\s+/g, "");
 const endpoint          = process.env.PLUGIN_ENDPOINT;
 const composeEnvStr     = process.env.PLUGIN_COMPOSE_ENVIRONMENT;
 let   dockerComposeFile = process.env.PLUGIN_COMPOSE_FILE;
+const standalone        = process.env.PLUGIN_STANDALONE;
 
 let additionalComposeEnv: { [key: string]: string } = {};
 
@@ -99,31 +100,34 @@ const axios = Axios.create({
 
     console.log(imageResponse.data);
 
+    let stackOptions = {};
+    let swarmId = "";
+    if (!standalone) {
+        // Find the swarm id
+        const swarmResponse = await axios.get(`/endpoints/${localEp.Id}/docker/swarm`);
 
-    // Find the swarm id
-    const swarmResponse = await axios.get(`/endpoints/${localEp.Id}/docker/swarm`);
+        if (swarmResponse.status !== 200) {
+            console.error("Could not get swarm id");
+            console.error(swarmResponse);
+            process.exit(1);
+        }
 
-    if (swarmResponse.status !== 200) {
-        console.error("Could not get swarm id");
-        console.error(swarmResponse);
-        process.exit(1);
+        swarmId = swarmResponse.data.ID;
+
+        console.log(`Swarm id: ${swarmId}`);
+        stackOptions = {
+            params: { filters: { SwarmID: swarmId } }
+        };
     }
 
-    console.log(`Swarm id: ${swarmResponse.data.ID}`);
-
-
     // Find the stack to update
-    const stacksResponse = await axios.get("/stacks",
-        {
-            params: { filters: { SwarmID: swarmResponse.data.ID } }
-        });
+    const stacksResponse = await axios.get("/stacks", stackOptions);
 
     if (stacksResponse.status !== 200) {
         console.error("Could not get list of stacks");
         console.error(stacksResponse);
         process.exit(1);
     }
-
 
     // Update the stack
     const stackToUpdate = stacksResponse.data.find((stack: { Id: Number, Name: string }) => stack.Name === stackName);
@@ -142,15 +146,22 @@ const axios = Axios.create({
 
     if (!stackToUpdate) {
         console.log(`Creating stack ${stackName}`);
+        let operationType = 2;
 
-        const stackCreateResponse = await axios.post(`/stacks?type=1&method=string&endpointId=${localEp.Id}`,
-        {
+        let stackCreateOptions = {
             Name: stackName,
-            SwarmID: swarmResponse.data.ID,
             StackFileContent: composeFile.toString(),
             Env: composeEnvArray,
             Prune: true
-        });
+        };
+
+        if (!standalone) {
+            operationType = 1;
+            const swarmOptions = {SwarmID: swarmId};
+            stackCreateOptions = {...stackCreateOptions, ...swarmOptions};
+        }
+
+        const stackCreateResponse = await axios.post(`/stacks?type=${operationType}&method=string&endpointId=${localEp.Id}`, stackCreateOptions);
 
         if (stackCreateResponse.status !== 200) {
             console.error("Could not create stack");
