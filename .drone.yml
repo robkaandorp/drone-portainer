@@ -8,7 +8,7 @@ steps:
   image: plugins/docker
   settings:
     debug: true
-    daemon_off: true
+    custom_dns: 1.1.1.1
     username:
       from_secret: docker_hub_user
     password:
