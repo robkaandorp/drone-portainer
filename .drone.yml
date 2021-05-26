@@ -5,7 +5,7 @@ name: default
 
 steps:
 - name: build
-  image: "plugins/docker:18.09.1"
+  image: plugins/docker
   settings:
     debug: true
     username:
