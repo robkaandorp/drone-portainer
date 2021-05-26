@@ -133,7 +133,15 @@ const axios = Axios.create({
     const stackToUpdate = stacksResponse.data.find((stack: { Id: Number, Name: string }) => stack.Name === stackName);
 
     // Read docker-compose.yml
-    const composeFile = fs.readFileSync(dockerComposeFile);
+    let composeFile: Buffer;
+    
+    try {
+        composeFile = fs.readFileSync(dockerComposeFile);
+    } catch (e) {
+        console.error(`Could not read compose file ${dockerComposeFile}`);
+        console.error(e);
+        process.exit(1);
+    }
 
     let composeEnvArray = [
         { "name": "imageName", "value": `${imageName}:${imageTag}` },
