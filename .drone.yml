@@ -8,6 +8,7 @@ steps:
   image: plugins/docker
   settings:
     debug: true
+    insecure: true
     username:
       from_secret: docker_hub_user
     password:
