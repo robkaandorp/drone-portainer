@@ -5,7 +5,7 @@ name: default
 
 steps:
 - name: build
-  image: "plugins/docker:v19.03.8"
+  image: "plugins/docker:19.03.8"
   settings:
     username:
       from_secret: docker_hub_user
