@@ -2,9 +2,8 @@ FROM node:14-alpine AS builder
 COPY . /app
 WORKDIR /app
 RUN rm -rf ./dist
-RUN npm install -g typescript
 RUN npm install
-RUN tsc
+RUN npx tsc
 
 FROM node:14-alpine AS dist
 COPY --from=builder /app/dist /app/dist
