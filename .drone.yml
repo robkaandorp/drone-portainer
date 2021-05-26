@@ -11,7 +11,8 @@ steps:
       from_secret: docker_hub_user
     password:
       from_secret: docker_hub_access_token
-    repo: index.docker.io/robkaandorp/drone-portainer
+    repo: robkaandorp/drone-portainer
+    email: info@di.nl
     tags:
       - latest
       - ${DRONE_COMMIT_BRANCH}-${DRONE_BUILD_NUMBER}
