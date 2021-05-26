@@ -5,14 +5,13 @@ name: default
 
 steps:
 - name: build
-  image: plugins/docker
+  image: plugins/docker:v19.03.8
   settings:
     username:
       from_secret: docker_hub_user
     password:
       from_secret: docker_hub_access_token
     repo: robkaandorp/drone-portainer
-    email: info@di.nl
     tags:
       - latest
       - ${DRONE_COMMIT_BRANCH}-${DRONE_BUILD_NUMBER}
