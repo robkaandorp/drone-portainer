@@ -18,7 +18,7 @@ Build:
             ${bamboo.capability.system.docker.executable} build \
                 --pull --build-arg tag=portainer-v1.9-${bamboo.shortPlanName}-${bamboo.buildNumber} \
                 -t robkaandorp/drone-portainer:portainer-v1.9-${bamboo.shortPlanName}-${bamboo.buildNumber} \
-                -t robkaandorp/drone-portainer:latest
+                -t robkaandorp/drone-portainer:latest .
         - script:
             - ${bamboo.capability.system.docker.executable} login --username robkaandorp --password ${bamboo.dockerhub_password}
             - ${bamboo.capability.system.docker.executable} push robkaandorp/drone-portainer:portainer-v1.9-${bamboo.shortPlanName}-${bamboo.buildNumber}
