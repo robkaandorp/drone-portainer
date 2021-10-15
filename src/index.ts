@@ -7,7 +7,7 @@ const portainerPassword = process.env.PLUGIN_PORTAINER_PASSWORD;
 const registry          = process.env.PLUGIN_REGISTRY;
 const image             = process.env.PLUGIN_IMAGE;
 const imageTag          = process.env.PLUGIN_IMAGE_TAG;
-const stackName         = process.env.PLUGIN_STACK_NAME.replace(/[^a-z0-9]/gmi, "").replace(/\s+/g, "");
+const stackName         = process.env.PLUGIN_STACK_NAME;
 const endpoint          = process.env.PLUGIN_ENDPOINT;
 const composeEnvStr     = process.env.PLUGIN_COMPOSE_ENVIRONMENT;
 let   dockerComposeFile = process.env.PLUGIN_COMPOSE_FILE;
@@ -80,25 +80,6 @@ const axios = Axios.create({
         process.exit(1);
     }
 
-
-    // Supply a fake 'X-Registry-Auth' header to work around a bug in portainer
-    const xRegistryAuth = { Username: "", Password: "", Serveraddress: registry };
-    const xRegistryAuthStr = Buffer.from(JSON.stringify(xRegistryAuth)).toString("base64");
-
-    // Pull the image
-    const imageResponse = await axios.post(`/endpoints/${localEp.Id}/docker/images/create`, { }, 
-        {
-            headers: { "X-Registry-Auth": xRegistryAuthStr },
-            params: { fromImage: imageName, tag: imageTag }
-        });
-
-    if (imageResponse.status !== 200){
-        console.error("Could not pull image");
-        console.error(imageResponse);
-        process.exit(1);
-    }
-
-    console.log(imageResponse.data);
 
     let stackOptions = {};
     let swarmId = "";
