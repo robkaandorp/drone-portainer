@@ -81,6 +81,24 @@ const axios = Axios.create({
     }
 
 
+    // Supply a 'X-Registry-Auth' header to work with portainer
+    const xRegistryAuth = { registryId: registryFromList.Id };
+    const xRegistryAuthStr = Buffer.from(JSON.stringify(xRegistryAuth)).toString("base64");
+
+    // Pull the image
+    const imageResponse = await axios.post(`/endpoints/${localEp.Id}/docker/images/create`, { }, 
+        {
+            headers: { "X-Registry-Auth": xRegistryAuthStr },
+            params: { fromImage: imageName, tag: imageTag }
+        });
+
+    if (imageResponse.status !== 200){
+        console.error("Could not pull image");
+        console.error(imageResponse);
+        process.exit(1);
+    }
+
+
     let stackOptions = {};
     let swarmId = "";
     if (!standalone) {
