@@ -44,7 +44,7 @@ const axios = Axios.create({
     }
 
     const bearerToken = response.data.jwt as string;
-    axios.defaults.headers = { 'Authorization': "Bearer " + bearerToken};
+    axios.defaults.headers.common['Authorization'] = "Bearer " + bearerToken;
 
     const endpointsReponse = await axios.get("/endpoints");
 

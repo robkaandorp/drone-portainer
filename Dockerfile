@@ -1,11 +1,12 @@
-FROM node:14-alpine AS builder
+FROM node:lts-alpine AS builder
 COPY . /app
 WORKDIR /app
 RUN rm -rf ./dist
-RUN npm install
+RUN npm ci
 RUN npx tsc
+RUN npm prune --production
 
-FROM node:14-alpine AS dist
+FROM node:lts-alpine AS dist
 COPY --from=builder /app/dist /app/dist
 COPY --from=builder /app/node_modules /app/node_modules
 CMD [ "node", "/app/dist/index.js" ]
