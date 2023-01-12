@@ -2,7 +2,13 @@
 
 > Drone portainer plugin to update a portainer stack with a docker compose file.
 
-[![Build Status](https://drone.teamify.dev/api/badges/robkaandorp/drone-portainer/status.svg)](https://drone.teamify.dev/robkaandorp/drone-portainer)
+[![Docker Image CI](https://github.com/robkaandorp/drone-portainer/actions/workflows/docker-image.yml/badge.svg)](https://github.com/robkaandorp/drone-portainer/actions/workflows/docker-image.yml)
+
+## Version history
+
+| Version | Remark                                                                                  |
+| ------- | --------------------------------------------------------------------------------------- |
+| v2.16   | Maintenance release. Works with at least portainer v2.14 and v2.16, but others as well. |
 
 ## Usage
 
