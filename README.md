@@ -29,7 +29,7 @@ name: default
     portainer_password:
       from_secret: portainer_password
     endpoint: primary # The endpoint name in portainer, most of the time this is 'primary' or 'local'.
-    registry: <name of private registry>
+    registry: <URL of private registry>
     image: example/example-image
     image_tag: ${DRONE_COMMIT_BRANCH}-${DRONE_BUILD_NUMBER}
     stack_name: example-stack
