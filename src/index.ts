@@ -144,6 +144,7 @@ const axios = Axios.create({
     }
 
     let composeEnvArray = [
+        { "name": "imageTag", "value": `${imageTag}` },
         { "name": "imageName", "value": `${imageName}:${imageTag}` },
         { "name": "stackName", "value": stackName }
     ];
