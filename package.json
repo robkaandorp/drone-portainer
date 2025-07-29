@@ -17,11 +17,11 @@
   },
   "homepage": "https://github.com/robkaandorp/drone-portainer#readme",
   "dependencies": {
-    "axios": "^1.10.0"
+    "axios": "^1.11.0"
   },
   "devDependencies": {
     "@types/node": "^22.16.5",
     "typescript": "^5.8.3"
   },
-  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
+  "packageManager": "pnpm@10.14.0-0+sha512.2cd47a0cbf5f1d1de7693a88307a0ede5be94e0d3b34853d800ee775efbea0650cb562b77605ec80bc8d925f5cd27c4dfe8bb04d3a0b76090784c664450d32d6"
 }
