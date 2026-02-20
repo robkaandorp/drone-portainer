@@ -17,6 +17,7 @@
 
 ## Key repository conventions
 - Drone plugin settings are consumed through `PLUGIN_*` environment variables; keep this contract when adding settings.
+- `PLUGIN_PORTAINER_ALLOW_SELF_SIGNED` is an opt-in escape hatch for self-signed Portainer HTTPS certificates and should remain disabled by default.
 - The compose file is expected in repo root and can use `$imageName` and `$stackName`; these are injected automatically, along with `$imageTag`.
 - Optional compose environment values come from `PLUGIN_COMPOSE_ENVIRONMENT` as a JSON object string and are appended to the default environment entries.
 - Endpoint selection uses endpoint name (`PLUGIN_ENDPOINT`), not endpoint ID; stack selection also resolves by stack name.

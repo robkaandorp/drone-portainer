@@ -28,6 +28,7 @@ name: default
       from_secret: portainer_username
     portainer_password:
       from_secret: portainer_password
+    portainer_allow_self_signed: true # Optional. Use only when Portainer HTTPS uses a self-signed certificate.
     endpoint: primary # The endpoint name in portainer, most of the time this is 'primary' or 'local'.
     registry: <URL of private registry>
     image: example/example-image
@@ -79,3 +80,6 @@ When setting the `compose_environment` from a secret, use json notation in the s
 ```
 
 If you are using portainer without swarm, set the standalone option to `true`. By default, drone is using the swarm version.
+
+When `portainer_allow_self_signed` is `true`, the plugin skips TLS certificate verification for Portainer API requests.
+Only enable this when your Portainer endpoint uses a self-signed certificate and you trust the network/path.
