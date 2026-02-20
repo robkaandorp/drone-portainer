@@ -82,4 +82,5 @@ When setting the `compose_environment` from a secret, use json notation in the s
 If you are using portainer without swarm, set the standalone option to `true`. By default, drone is using the swarm version.
 
 When `portainer_allow_self_signed` is `true`, the plugin skips TLS certificate verification for Portainer API requests.
+When running outside Drone settings, use environment variable `PORTAINER_ALLOW_SELF_SIGNED=true`.
 Only enable this when your Portainer endpoint uses a self-signed certificate and you trust the network/path.

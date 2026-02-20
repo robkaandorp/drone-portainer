@@ -14,7 +14,7 @@ const composeEnvStr     = process.env.PLUGIN_COMPOSE_ENVIRONMENT;
 let   dockerComposeFile = process.env.PLUGIN_COMPOSE_FILE;
 const standalone        = process.env.PLUGIN_STANDALONE;
 const forcePull         = process.env.PLUGIN_FORCE_PULL;
-const allowSelfSigned   = process.env.PLUGIN_PORTAINER_ALLOW_SELF_SIGNED;
+const allowSelfSigned   = process.env.PLUGIN_PORTAINER_ALLOW_SELF_SIGNED ?? process.env.PORTAINER_ALLOW_SELF_SIGNED;
 const portainerAllowSelfSigned = !!allowSelfSigned && ["true", "1", "yes", "on"].includes(allowSelfSigned.toLowerCase());
 
 let additionalComposeEnv: { [key: string]: string } = {};
@@ -28,6 +28,11 @@ if (!dockerComposeFile || dockerComposeFile === '') {
 }
 
 const imageName = `${registry}/${image}`;
+
+if (portainerAllowSelfSigned) {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    console.warn("WARNING: TLS certificate verification is disabled for Portainer requests.");
+}
 
 const axios = Axios.create({
     baseURL: `${portainerUrl}/api`,
