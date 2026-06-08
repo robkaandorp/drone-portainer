@@ -4,7 +4,7 @@ WORKDIR /app
 RUN rm -rf ./dist
 RUN npm install --global corepack@latest
 RUN corepack enable pnpm
-RUN pnpm install --frozen-lockfile
+RUN pnpm ci
 RUN pnpm run build
 RUN pnpm prune --prod
 
