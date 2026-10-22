@@ -1,4 +1,4 @@
-FROM node:lts-alpine AS builder
+FROM node:24-alpine AS builder
 COPY . /app
 WORKDIR /app
 RUN rm -rf ./dist
@@ -8,7 +8,7 @@ RUN pnpm ci
 RUN pnpm run build
 RUN pnpm prune --prod
 
-FROM node:lts-alpine AS dist
+FROM node:24-alpine AS dist
 COPY --from=builder /app/dist /app/dist
 COPY --from=builder /app/node_modules /app/node_modules
 CMD [ "node", "/app/dist/index.js" ]
