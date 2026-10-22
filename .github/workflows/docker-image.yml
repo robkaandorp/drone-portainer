@@ -2,33 +2,149 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "develop" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "develop" ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
 
   build:
 
+    name: Build container image
     runs-on: ubuntu-latest
-    env:
-      RELEASE_VERSION: "${{ vars.VERSION_TAG }}.${{ github.run_number }}"
-      IMAGE_NAME: "robkaandorp/drone-portainer"
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Build and push
-      uses: docker/build-push-action@v5
-      with:
-        push: true
-        tags: |
-          ${{ env.IMAGE_NAME }}:${{ vars.VERSION_TAG }}
-          ${{ env.IMAGE_NAME }}:${{ env.RELEASE_VERSION }}
-          ${{ env.IMAGE_NAME }}:latest
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # The version in package.json is the single source of truth for the
+      # release: release/tag name is v<version>, image tags are v<version> and
+      # latest. Only plain semver (MAJOR.MINOR.PATCH) is accepted, so a
+      # pre-release suffix or a leading "v" fails fast instead of producing a
+      # malformed tag.
+      - name: Read and validate version from package.json
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f package.json ]; then
+            echo "::error::package.json not found; the release version cannot be determined."
+            exit 1
+          fi
+          if ! raw_version="$(jq -r '.version // empty' package.json)"; then
+            echo "::error::Could not read .version from package.json."
+            exit 1
+          fi
+          # Trim surrounding whitespace only and validate the untouched value,
+          # so internal whitespace or a suffix still fails the check below.
+          version="${raw_version#"${raw_version%%[![:space:]]*}"}"
+          version="${version%"${version##*[![:space:]]}"}"
+          if [ -z "${version}" ]; then
+            echo "::error::package.json has no version field; set it to a plain semver version such as 1.0.0."
+            exit 1
+          fi
+          # Match with bash's =~ (not grep) so a value containing a newline can
+          # never satisfy the pattern line by line.
+          if ! [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::package.json version '${version}' is not a plain semver version; expected MAJOR.MINOR.PATCH without a pre-release suffix or a leading 'v' (for example 1.0.0)."
+            exit 1
+          fi
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          echo "Validated version: v${version}"
+
+      # Fail-closed guard: on master a version may only be built and pushed once.
+      # Anything other than an HTTP 404 (missing release AND missing tag) aborts
+      # the build, so an API hiccup can never look like "not released yet".
+      # This runs before the Docker Hub login and push.
+      - name: Check that v${{ steps.version.outputs.version }} was not released already
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="v${VERSION}"
+          for path in "releases/tags/${tag}" "git/ref/tags/${tag}"; do
+            status=0
+            # -i gives us the HTTP status line, so an error is classified by the
+            # real response code instead of by matching text in the message.
+            response="$(gh api -i "repos/${GH_REPO}/${path}" 2>&1)" || status=$?
+            if [ "${status}" -eq 0 ]; then
+              echo "::error::${tag} was already released; bump the version in package.json"
+              exit 1
+            fi
+            # Only a real "HTTP/<version> <code>" status line counts; an error
+            # message that merely contains digits (a port number, say) can
+            # never be mistaken for a 404.
+            http_status="$(printf '%s\n' "${response}" | sed -n '1s|^HTTP/[0-9.]*[[:space:]]\([0-9]\{3\}\).*|\1|p')"
+            if [ "${http_status}" = "404" ]; then
+              echo "${path}: HTTP 404 Not Found, so it does not exist yet; continuing."
+              continue
+            fi
+            echo "::error::Could not verify that ${tag} is unreleased: 'gh api repos/${GH_REPO}/${path}' exited with status ${status} (HTTP ${http_status:-unknown}): ${response}"
+            exit 1
+          done
+          echo "${tag} is not released yet."
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Pull requests and develop pushes only build the image; only a master
+      # push publishes it.
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+          tags: |
+            robkaandorp/drone-portainer:v${{ steps.version.outputs.version }}
+            robkaandorp/drone-portainer:latest
+
+  release:
+
+    name: Create GitHub release
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    # The only write permission in this workflow.
+    permissions:
+      contents: write
+
+    steps:
+      # No checkout on purpose: this job must not run any repository code.
+      # GH_REPO is required because, without a checkout, gh cannot discover the
+      # repository from the filesystem and would fail with
+      # "fatal: not a git repository".
+      # --target is required because the default branch is develop; without it
+      # the release tag would be created on develop's HEAD instead of the
+      # commit that was just built and pushed.
+      - name: Create release v${{ needs.build.outputs.version }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.build.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "v${VERSION}" --target "${{ github.sha }}" --title "v${VERSION}" --generate-notes

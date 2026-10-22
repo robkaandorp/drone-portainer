@@ -6,13 +6,20 @@
 
 ## Version history
 
-| Version | Remark                                                                                  |
-| ------- | --------------------------------------------------------------------------------------- |
-| v2.16   | Maintenance release. Works with at least portainer v2.14 and v2.16, but others as well. |
+| Version       | Remark                                                                                                                        |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| v1.0.0        | First tagged GitHub release. Switch to semantic versioning; same plugin as v2.16.27, including opt-in self-signed certificate support. |
+| v2.16 / v2.16.N | Previous Portainer-version-based tags; no longer updated.                                                                    |
+
+## Releases
+
+The version comes from `package.json`; bump it on `develop` before merging to `master`. A push to `master` publishes `:v<version>` and `:latest` to Docker Hub and creates GitHub release `v<version>`. Publishing fails if that version was already released.
 
 ## Usage
 
 This image can be used as a drone plugin to deploy a compose file to portainer. For example:
+
+You can pin the plugin image to `robkaandorp/drone-portainer:v1.0.0` when you want to use a specific release.
 
 ``` yaml
 ---

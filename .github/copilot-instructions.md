@@ -13,7 +13,7 @@
 - Stack mode depends on `PLUGIN_STANDALONE`: swarm mode reads swarm ID and filters stacks by swarm; standalone mode skips swarm lookups.
 - Compose content is read from a file in the workspace (default `docker-compose.yml`) and submitted as string content to Portainer create/update APIs.
 - Container packaging uses a multi-stage Dockerfile: build with pnpm + TypeScript in `builder`, then run `node /app/dist/index.js` in a slim runtime stage.
-- GitHub Actions workflow `.github/workflows/docker-image.yml` builds and pushes Docker Hub tags from `VERSION_TAG`, run number, and `latest`.
+- GitHub Actions workflow `.github/workflows/docker-image.yml` builds on develop pushes and pull requests without publishing; master pushes publish Docker Hub tags `v<version>` and `latest` and create a GitHub release. The version comes from `package.json` and must be plain MAJOR.MINOR.PATCH semver.
 
 ## Key repository conventions
 - Drone plugin settings are consumed through `PLUGIN_*` environment variables; keep this contract when adding settings.
