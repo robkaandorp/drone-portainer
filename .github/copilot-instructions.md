@@ -23,3 +23,4 @@
 - Endpoint selection uses endpoint name (`PLUGIN_ENDPOINT`), not endpoint ID; stack selection also resolves by stack name.
 - Registry pre-check is required: the configured registry URL must already exist in Portainer, and only the single configured image is pre-pulled by this plugin.
 - Stack operations always send `Prune: true`; update requests set `PullImage` based on `PLUGIN_FORCE_PULL`.
+- When bumping the version in `package.json`, also move the `[Unreleased]` entries in `CHANGELOG.md` under the new version; each version may be released only once, and the version must be plain MAJOR.MINOR.PATCH without leading zeros.

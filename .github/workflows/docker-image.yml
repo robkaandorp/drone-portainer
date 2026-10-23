@@ -32,9 +32,9 @@ jobs:
 
       # The version in package.json is the single source of truth for the
       # release: release/tag name is v<version>, image tags are v<version> and
-      # latest. Only plain semver (MAJOR.MINOR.PATCH) is accepted, so a
-      # pre-release suffix or a leading "v" fails fast instead of producing a
-      # malformed tag.
+      # latest. Only plain semver (MAJOR.MINOR.PATCH) without leading zeros is
+      # accepted, so a pre-release suffix, a leading "v" or a zero-padded
+      # numeric part fails fast instead of producing a malformed tag.
       - name: Read and validate version from package.json
         id: version
         shell: bash
@@ -57,9 +57,13 @@ jobs:
             exit 1
           fi
           # Match with bash's =~ (not grep) so a value containing a newline can
-          # never satisfy the pattern line by line.
-          if ! [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::package.json version '${version}' is not a plain semver version; expected MAJOR.MINOR.PATCH without a pre-release suffix or a leading 'v' (for example 1.0.0)."
+          # never satisfy the pattern line by line. The pattern lives in a
+          # single-quoted variable and is used unquoted, because quoting the
+          # right-hand side would make bash compare literal strings instead of
+          # parsing the parentheses and "|" as regex syntax.
+          semver_re='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
+          if ! [[ "${version}" =~ ${semver_re} ]]; then
+            echo "::error::package.json version '${version}' is not a plain semver version; expected MAJOR.MINOR.PATCH without a pre-release suffix, a leading 'v' or leading zeros in a numeric part (for example 1.0.0)."
             exit 1
           fi
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
